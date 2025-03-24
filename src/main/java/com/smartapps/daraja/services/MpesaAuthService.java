@@ -31,10 +31,12 @@ public class MpesaAuthService {
 
         HttpEntity<String> request = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(authUrl, HttpMethod.GET, request, String.class);
+        System.out.println(extractToken(response.getBody()));
         return extractToken(response.getBody());
     }
     private String extractToken(String response){
         JSONObject jsonObject = new JSONObject(response);
+
         return jsonObject.getString("access_token");
     }
 }

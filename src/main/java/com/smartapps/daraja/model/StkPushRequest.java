@@ -4,7 +4,7 @@ public class StkPushRequest {
     private String password;
     private String timestamp;
     private String transactionType;
-    private String amount;
+    private int amount;
     private String partyA;
     private String partyB;
     private String phoneNumber;
@@ -32,7 +32,7 @@ public class StkPushRequest {
     public String getPassword() { return password; }
     public String getTimestamp() { return timestamp; }
     public String getTransactionType() { return transactionType; }
-    public String getAmount() { return amount; }
+    public Integer getAmount() { return amount; }
     public String getPartyA() { return partyA; }
     public String getPartyB() { return partyB; }
     public String getPhoneNumber() { return phoneNumber; }
@@ -63,7 +63,7 @@ public class StkPushRequest {
         private String password;
         private String timestamp;
         private String transactionType;
-        private String amount;
+        private int amount;
         private String partyA;
         private String partyB;
         private String phoneNumber;
@@ -91,7 +91,7 @@ public class StkPushRequest {
             return this;
         }
 
-        public Builder setAmount(String amount) {
+        public Builder setAmount(int amount) {
             this.amount = amount;
             return this;
         }

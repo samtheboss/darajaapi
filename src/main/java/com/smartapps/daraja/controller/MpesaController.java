@@ -23,13 +23,13 @@ public class MpesaController {
         String token = mpesaAuthService.getAccessToken();
         return Map.of("accessToken", token);
     }
-    @GetMapping("/calbackurl")
-    public String calbackurl() {
-        return "callbackurl";
-    }
 
+    @PostMapping("/calbackurl")
+     public void stkPushCallback(@RequestBody Map<String, Object> callbackData) {
+        System.out.println("Received STK Push Callback: " + callbackData);
+    }
     @PostMapping("/stkpush")
-    public StkPushResponse stkPush(@RequestBody Map<String, String> requestData) throws IOException {
+    public String stkPush(@RequestBody Map<String, String> requestData) throws IOException {
         String phoneNumber = requestData.get("phoneNumber");
         double amount = Double.parseDouble(requestData.get("amount"));
         return mpesaStkPushService.initiateStkPush(phoneNumber, amount);

@@ -5,17 +5,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartapps.daraja.model.StkPushRequest;
 import com.smartapps.daraja.model.StkPushResponse;
 import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+//import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class MpesaStkPushService {
@@ -33,84 +43,16 @@ public class MpesaStkPushService {
     private String callbackUrl;
     @Autowired
     private MpesaAuthService mpesaAuthService;
-    private final OkHttpClient client = new OkHttpClient();
-//    public StkPushResponse initiateStkPushdd(String phoneNumber, double amount) {
-//        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-//        String password = generatePassword(businessShortCode, passkey, timestamp);
-//        StkPushRequest request = new StkPushRequest.Builder()
-//                .setBusinessShortCode("174379")
-//                .setPassword(password)
-//                .setTimestamp(timestamp)
-//                .setTransactionType("CustomerPayBillOnline")
-//                .setAmount(String.valueOf((int) amount))
-//                .setPartyA(phoneNumber)
-//                .setPartyB("174379")
-//                .setPhoneNumber(phoneNumber)
-//                .setCallBackURL(callbackUrl)
-//                .setAccountReference("INV-001")
-//                .setTransactionDesc("Payment for Order #001")
-//                .build();
-//        System.out.println(request.toString());
-//
-//        String accessToken = mpesaAuthService.getAccessToken();
-//        RestTemplate restTemplate = new RestTemplate();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + accessToken);
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        HttpEntity<StkPushRequest> entity = new HttpEntity<>(request, headers);
-//        ResponseEntity<StkPushResponse> response = restTemplate.exchange(stkPushUrl, HttpMethod.POST, entity, StkPushResponse.class);
-//
-//        return response.getBody();
-//    }
-
-    //    public StkPushResponse initiateStkPush(String phoneNumber, double amount) throws IOException {
-//        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-//        String password = generatePassword(businessShortCode, passkey, timestamp);
-//        StkPushRequest request = new StkPushRequest.Builder()
-//                .setBusinessShortCode("174379")
-//                .setPassword(password)
-//                .setTimestamp(timestamp)
-//                .setTransactionType("CustomerPayBillOnline")
-//                .setAmount(String.valueOf((int) amount))
-//                .setPartyA(phoneNumber)
-//                .setPartyB("174379")
-//                .setPhoneNumber(phoneNumber)
-//                .setCallBackURL(callbackUrl)
-//                .setAccountReference("INV-001")
-//                .setTransactionDesc("Payment for Order #001")
-//                .build();
-//        System.out.println(request.toString());
-//        String accessToken = mpesaAuthService.getAccessToken();
-//        String jsonBody = requestBody(request);
-//        System.out.println("Request Body: " + jsonBody);
-//
-//        Request okHttpRequest = new Request.Builder()
-//                .url(stkPushUrl)
-//                .addHeader("Authorization", "Bearer " + accessToken)
-//                .addHeader("Content-Type", "application/json")
-//                .post(RequestBody.create(jsonBody, MediaType.get("application/json")))
-//                .build();
-//
-//        try (Response response = client.newCall(okHttpRequest).execute()) {
-//            if (!response.isSuccessful()) {
-//                throw new Exception("Unexpected code " + response);
-//            } else System.out.println("Full Response: " + response.body().string());
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//        return null;
-//    }
-    public StkPushResponse initiateStkPush(String phoneNumber, double amount) throws IOException {
+  private final OkHttpClient client = new OkHttpClient();
+    public StkPushResponse initiateStkPushdd(String phoneNumber, double amount) {
         String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String password = generatePassword(businessShortCode, passkey, timestamp);
-
         StkPushRequest request = new StkPushRequest.Builder()
                 .setBusinessShortCode("174379")
                 .setPassword(password)
                 .setTimestamp(timestamp)
                 .setTransactionType("CustomerPayBillOnline")
-                .setAmount(String.valueOf((int) amount))
+                .setAmount(((int) amount))
                 .setPartyA(phoneNumber)
                 .setPartyB("174379")
                 .setPhoneNumber(phoneNumber)
@@ -118,38 +60,60 @@ public class MpesaStkPushService {
                 .setAccountReference("INV-001")
                 .setTransactionDesc("Payment for Order #001")
                 .build();
+        System.out.println(request.toString());
 
         String accessToken = mpesaAuthService.getAccessToken();
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+       // headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<StkPushRequest> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<StkPushResponse> response = restTemplate.exchange(stkPushUrl, HttpMethod.POST, entity, StkPushResponse.class);
+
+        return response.getBody();
+    }
+
+    public String initiateStkPush(String phoneNumber, double amount)
+            throws IOException {
+        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String password = generatePassword(businessShortCode, passkey, timestamp);
+        StkPushRequest request = new StkPushRequest.Builder()
+                .setBusinessShortCode(businessShortCode)
+                .setPassword(password)
+                .setTimestamp(timestamp)
+                .setTransactionType("CustomerPayBillOnline")
+                .setAmount((int) amount)
+                .setPartyA(phoneNumber)
+                .setPartyB("174379")
+                .setPhoneNumber(phoneNumber)
+                .setCallBackURL(callbackUrl)
+                .setAccountReference("INV-001")
+                .setTransactionDesc("Payment for Order #001")
+                .build();
+        String accessToken = mpesaAuthService.getAccessToken();
         String jsonBody = requestBody(request);
-
-        System.out.println("Request Body: {}" + jsonBody);
-
+        System.out.println("Request Body: " + jsonBody);
         Request okHttpRequest = new Request.Builder()
                 .url(stkPushUrl)
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .addHeader("Content-Type", "application/json")
                 .post(RequestBody.create(jsonBody, MediaType.get("application/json")))
                 .build();
-
         try (Response response = client.newCall(okHttpRequest).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Request failed with code: " + response.code() + " - " + response.message());
             }
-
             try (ResponseBody responseBody = response.body()) {
                 if (responseBody != null) {
                     String responseString = responseBody.string();
-                    return convertFromJson(responseString, StkPushResponse.class);
+                    System.out.println("Response Body: " + responseString);
+                    return responseString;
                 } else {
                     throw new IOException("Empty response body");
                 }
             }
         }
-    }
-
-    private <T> T convertFromJson(String json, Class<T> clazz) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(json, clazz);
     }
     private String generatePassword(String shortcode, String passkey, String timestamp) {
         String data = shortcode + passkey + timestamp;
