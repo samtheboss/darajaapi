@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.smartapps.daraja.utils.Converter.convertJsonToMap;
+
 @Service
 public class MpesaStkPushService {
 
@@ -43,36 +45,7 @@ public class MpesaStkPushService {
     private String callbackUrl;
     @Autowired
     private MpesaAuthService mpesaAuthService;
-  private final OkHttpClient client = new OkHttpClient();
-    public StkPushResponse initiateStkPushdd(String phoneNumber, double amount) {
-        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String password = generatePassword(businessShortCode, passkey, timestamp);
-        StkPushRequest request = new StkPushRequest.Builder()
-                .setBusinessShortCode("174379")
-                .setPassword(password)
-                .setTimestamp(timestamp)
-                .setTransactionType("CustomerPayBillOnline")
-                .setAmount(((int) amount))
-                .setPartyA(phoneNumber)
-                .setPartyB("174379")
-                .setPhoneNumber(phoneNumber)
-                .setCallBackURL(callbackUrl)
-                .setAccountReference("INV-001")
-                .setTransactionDesc("Payment for Order #001")
-                .build();
-        System.out.println(request.toString());
-
-        String accessToken = mpesaAuthService.getAccessToken();
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-       // headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<StkPushRequest> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<StkPushResponse> response = restTemplate.exchange(stkPushUrl, HttpMethod.POST, entity, StkPushResponse.class);
-
-        return response.getBody();
-    }
+    private final OkHttpClient client = new OkHttpClient();
 
     public String initiateStkPush(String phoneNumber, double amount)
             throws IOException {
@@ -108,6 +81,7 @@ public class MpesaStkPushService {
                 if (responseBody != null) {
                     String responseString = responseBody.string();
                     System.out.println("Response Body: " + responseString);
+                    convertJsonToMap(responseString);
                     return responseString;
                 } else {
                     throw new IOException("Empty response body");
@@ -115,10 +89,12 @@ public class MpesaStkPushService {
             }
         }
     }
+
     private String generatePassword(String shortcode, String passkey, String timestamp) {
         String data = shortcode + passkey + timestamp;
         return Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
     }
+
     public String requestBody(StkPushRequest request) {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
