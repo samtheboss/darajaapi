@@ -46,7 +46,7 @@ public class MpesaController {
     }
 
     @PostMapping("/calbackurl")
-    public void stkPushCallback(@RequestBody Map<String, Object> callbackData) {
+    public void stkPushCallback(@RequestBody String callbackData) {
         System.out.println("Received STK Push Callback: " + callbackData);
     }
 
