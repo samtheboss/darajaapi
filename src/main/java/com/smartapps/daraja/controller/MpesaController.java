@@ -34,7 +34,10 @@ public class MpesaController {
     public MpesaTransaction confirmationUrl(@RequestBody MpesaTransaction transaction) {
         return repository.save(transaction);
     }
-
+@GetMapping("/keepalive")
+public String keepAlive(){
+        return "requested";
+}
     @PostMapping("/validationUrl")
     public ResponseEntity<Map<String, String>> validationUrl() {
         Map<String, String> response = new HashMap<>();
